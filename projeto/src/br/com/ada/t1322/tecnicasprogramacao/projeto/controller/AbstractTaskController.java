@@ -55,13 +55,35 @@ public abstract class AbstractTaskController implements TaskController {
     }
 
     @Override
-    public Task updateTask(Long id, String title, String description, String deadline, Task.Status status) {
-        TaskUpdateRequest taskUpdateRequest = TaskUpdateRequest.builder(id).title(title).description(description).deadline(LocalDate.parse(deadline, DATE_TIME_FORMATTER)).status(status).build();
+    public Task updateTask(Long id, String title, String description, String deadlineStr, Task.Status status) {
+        LocalDate deadline = null;
+        if (deadlineStr != null && !deadlineStr.isBlank()) {
+            try {
+                deadline = LocalDate.parse(deadlineStr, DATE_TIME_FORMATTER);
+                if (deadline.isBefore(LocalDate.now())) {
+                    throw new IllegalArgumentException("A nova data limite não pode ser no passado.");
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Formato de data inválido para atualização. Use dd/MM/yyyy.");
+            }
+        }
+
+        TaskUpdateRequest taskUpdateRequest = TaskUpdateRequest.builder(id)
+                .title(title)
+                .description(description)
+                .deadline(deadline)
+                .status(status)
+                .build();
         return taskService.updateTask(taskUpdateRequest);
     }
 
     @Override
     public Task updateTaskStatus(Long id, Task.Status newStatus) {
         return taskService.updateStatus(id, newStatus);
+    }
+
+    @Override
+    public boolean deleteTask(Long id) {
+        return taskService.deleteById(id);
     }
 }

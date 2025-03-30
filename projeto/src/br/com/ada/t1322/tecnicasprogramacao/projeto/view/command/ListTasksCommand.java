@@ -2,8 +2,8 @@ package br.com.ada.t1322.tecnicasprogramacao.projeto.view.command;
 
 import br.com.ada.t1322.tecnicasprogramacao.projeto.controller.TaskController;
 import br.com.ada.t1322.tecnicasprogramacao.projeto.model.Task;
-import br.com.ada.t1322.tecnicasprogramacao.projeto.view.View;
 import br.com.ada.t1322.tecnicasprogramacao.projeto.service.TaskComparators;
+import br.com.ada.t1322.tecnicasprogramacao.projeto.view.View;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,15 +25,17 @@ public class ListTasksCommand implements Command {
         List<Task> tasks = taskController.getAllTasks(orderBy);
 
         if (tasks.isEmpty()) {
-            view.showMessage("📭 Nenhuma tarefa encontrada.");
+            view.showMessage("📄 Nenhuma tarefa encontrada.");
         } else {
-            tasks.forEach(task -> view.showMessage(task.toString("dd/MM/yyyy")));
+            view.showMessage("\n--- Lista de Tarefas ---");
+            tasks.forEach(task -> view.showMessage(task.toString()));
+            view.showMessage("--- Fim da Lista ---");
         }
     }
 
     private Optional<Comparator<Task>> getSortingMethod() {
         view.showMessage("Escolha o critério de ordenação:");
-        view.showMessage("1 - Por Data Limite");
+        view.showMessage("1 - Por Data Limite (Padrão)");
         view.showMessage("2 - Por Título");
         view.showMessage("3 - Por Status");
         view.showMessage("4 - Sem ordenação");

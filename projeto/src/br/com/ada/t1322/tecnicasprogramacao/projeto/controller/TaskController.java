@@ -20,4 +20,6 @@ public interface TaskController {
     List<Task> getTasksByStatus(Task.Status status, Optional<Comparator<Task>> orderBy);
 
     List<Task> getTasksBy(Predicate<Task> predicate, Optional<Comparator<Task>> orderBy);
+
+    boolean deleteTask(Long id);
 }

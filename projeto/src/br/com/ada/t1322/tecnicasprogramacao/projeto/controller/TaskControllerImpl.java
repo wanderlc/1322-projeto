@@ -17,11 +17,6 @@ public class TaskControllerImpl extends AbstractTaskController {
     private static final Predicate<String> IS_INVALID_TITLE =
             s -> s == null || s.isBlank() || s.length() < TAMANHO_MINIMO_TITULO;
 
-    private static final Predicate<String> IS_BLANK = s -> s == null || s.isBlank();
-
-    public static final int MIN_DESCRIPTION_LENGTH = 5;
-    private static final Predicate<String> IS_INVALID_DESCRIPTION_TEXT = s -> s != null && !s.isBlank() && s.length() < MIN_DESCRIPTION_LENGTH;
-
     private static final Predicate<LocalDate> IS_BEFORE_TODAY =
             date -> date.isBefore(LocalDate.now());
 
@@ -49,7 +44,7 @@ public class TaskControllerImpl extends AbstractTaskController {
                     }
                 })
                 .filter(IS_BEFORE_TODAY.negate())
-                .orElseThrow(() -> new IllegalArgumentException("Data deve ser igual ou superior à data atual."));
+                .orElseThrow(() -> new IllegalArgumentException("Data inválida ou formato incorreto. Use dd/MM/yyyy e não informe data passada."));
     }
 
     @Override
@@ -57,10 +52,8 @@ public class TaskControllerImpl extends AbstractTaskController {
         if (status == null) {
             throw new IllegalArgumentException("Status não pode ser nulo.");
         }
-
         if (status == Task.Status.CONCLUIDO) {
             throw new IllegalArgumentException("Uma nova tarefa não pode ser criada com o status 'CONCLUÍDO'.");
         }
     }
-
 }
