@@ -3,33 +3,24 @@ package br.com.ada.t1322.tecnicasprogramacao.projeto.service;
 import br.com.ada.t1322.tecnicasprogramacao.projeto.dto.TaskUpdateRequest;
 import br.com.ada.t1322.tecnicasprogramacao.projeto.model.Task;
 import br.com.ada.t1322.tecnicasprogramacao.projeto.repository.TaskRepository;
-import br.com.ada.t1322.tecnicasprogramacao.projeto.service.notification.Notifier;
-import br.com.ada.t1322.tecnicasprogramacao.projeto.service.notification.TaskNotifier;
-import br.com.ada.t1322.tecnicasprogramacao.projeto.service.validation.TaskValidator;
+import br.com.ada.t1322.tecnicasprogramacao.projeto.service.validation.TaskValidator; // Importar
 
 import java.util.Optional;
 
 public abstract class AbstractTaskService implements TaskService {
 
     protected final TaskRepository taskRepository;
+    protected final TaskValidator validator;
 
-    protected final TaskValidator taskValidator;
-    protected final Notifier notifier;
-
-    public AbstractTaskService(TaskRepository taskRepository, TaskValidator taskValidator, Notifier notifier) {
+    public AbstractTaskService(TaskRepository taskRepository, TaskValidator validator) {
         if (taskRepository == null) {
             throw new IllegalArgumentException("TaskRepository não pode ser nulo.");
         }
-        this.taskRepository = taskRepository;
-        if (taskValidator == null) {
+        if (validator == null) {
             throw new IllegalArgumentException("TaskValidator não pode ser nulo.");
         }
-        this.taskValidator = taskValidator;
-
-        if (notifier == null) {
-            throw new IllegalArgumentException("Notifier não pode ser nulo.");
-        }
-        this.notifier = notifier;
+        this.taskRepository = taskRepository;
+        this.validator = validator;
     }
 
     @Override
@@ -47,9 +38,8 @@ public abstract class AbstractTaskService implements TaskService {
         if (task == null) {
             throw new IllegalArgumentException("Tarefa não pode ser nula.");
         }
-        taskValidator.validate(task);
+        this.validator.validate(task);
     }
-
 
     @Override
     public Task updateStatus(Long id, Task.Status newStatus) {
@@ -78,8 +68,6 @@ public abstract class AbstractTaskService implements TaskService {
         if (updateRequest.getStatus() != null) {
             applyStatusUpdate(existingTask, updateRequest.getStatus());
         }
-
-        validate(existingTask);
         return save(existingTask);
     }
 
@@ -94,12 +82,13 @@ public abstract class AbstractTaskService implements TaskService {
     }
 
     @Override
-    public void stopNotifier() {
-        notifier.stop();
+    public void notifyUpcomingDeadlines(int daysBefore) {
     }
 
+
     @Override
-    public void startNotifier() {
-        notifier.start();
-    }
+    public abstract void startNotifier();
+
+    @Override
+    public abstract void stopNotifier();
 }

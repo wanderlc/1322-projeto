@@ -13,39 +13,46 @@ import java.util.function.Predicate;
 public class TaskServiceImpl extends AbstractTaskService {
 
     public static final Comparator<Task> DEFAULT_TASK_SORT = Comparator.comparing(Task::getDeadline);
-    private static TaskServiceImpl INSTANCE;
 
-    private TaskServiceImpl(TaskRepository taskRepository, TaskValidator taskValidator, Notifier notifier) {
-        super(taskRepository, taskValidator, notifier);
-    }
 
-    public static TaskServiceImpl create(TaskRepository taskRepository, TaskValidator taskValidator, Notifier notifier) {
-        if (INSTANCE == null) {
-            synchronized (TaskServiceImpl.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new TaskServiceImpl(taskRepository, taskValidator, notifier);
-                }
-            }
+    private final Notifier notifier;
+
+    public TaskServiceImpl(TaskRepository taskRepository, TaskValidator validator, Notifier notifier) {
+        super(taskRepository, validator);
+        if (notifier == null) {
+            throw new IllegalArgumentException("Notifier não pode ser nulo.");
         }
-        return INSTANCE;
+        this.notifier = notifier;
     }
 
     @Override
     public List<Task> findAll(Optional<Comparator<Task>> orderBy) {
-        // Você deve usar o repository que já está disponível via heranca.
-        // Por exemplo return taskRepository.findAll();
-        // Mas lembre que precisa aplicar o ordenador (orderBy) antes de retornar a lista
-        return null;
+        return taskRepository.findAll().stream().sorted(orderBy.orElse(DEFAULT_TASK_SORT)).toList();
     }
 
     @Override
     public List<Task> findByStatus(Task.Status status, Optional<Comparator<Task>> orderBy) {
-        return null;
+        return taskRepository.findByStatus(status).stream().sorted(orderBy.orElse(DEFAULT_TASK_SORT)).toList();
     }
 
     @Override
     public List<Task> findBy(Predicate<Task> predicate, Optional<Comparator<Task>> orderBy) {
-        return null;
+        var stream = taskRepository.findBy(predicate).stream();
+
+        if (orderBy.isPresent()) {
+            stream = stream.sorted(orderBy.get());
+        }
+
+        return stream.toList();
     }
 
+    @Override
+    public void startNotifier() {
+        this.notifier.start();
+    }
+
+    @Override
+    public void stopNotifier() {
+        this.notifier.stop();
+    }
 }

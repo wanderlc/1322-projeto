@@ -24,16 +24,16 @@ public interface TaskService {
         return findById(id).orElseThrow(() -> new IllegalArgumentException("Tarefa não encontrada"));
     }
 
-
     boolean deleteById(Long id);
 
     void clearAll();
+
+    void notifyUpcomingDeadlines(int daysBefore);
 
     Task updateTask(TaskUpdateRequest updateRequest);
 
     Task updateStatus(Long id, Task.Status newStatus);
 
-    void stopNotifier();
-
     void startNotifier();
+    void stopNotifier();
 }
